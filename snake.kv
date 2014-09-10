@@ -1,0 +1,31 @@
+<SnakeGame>:
+	
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 0.5
+		Rectangle:
+			pos: 0, 0
+			size: self.right, self.top
+		Color:
+			rgba: 0, 0, 0, 1
+		Rectangle:
+			pos: self.top * 0.05, self.top * 0.05
+			size: self.top * 0.9, self.top * 0.9
+
+<Square>:
+
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+<Food>:
+
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 1
+		Ellipse:
+			pos: self.pos
+			size: self.size
