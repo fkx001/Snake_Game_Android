@@ -15,8 +15,124 @@ class SnakeApp(App):
 		Clock.schedule_interval(game.update, 1.0 / 10.0)
 		return game
 
-
 class SnakeGame(Widget):
+
+	status = 0
+	present_widget = ObjectProperty(None)
+	last_difficulty = 0
+
+	def build_game(self):
+		self.status = 0
+		self.present_widget = SnakeGameStart(
+			size = self.size,
+			pos = self.pos
+		)
+		self.present_widget.veryeasy.bind(on_release = self.start_game1)
+		self.present_widget.easy.bind(on_release = self.start_game2)
+		self.present_widget.medium.bind(on_release = self.start_game3)
+		self.present_widget.hard.bind(on_release = self.start_game4)
+		self.present_widget.veryhard.bind(on_release = self.start_game5)
+		self.add_widget(self.present_widget)
+
+	def start_game(self, difficulty):
+		self.remove_widget(self.present_widget)
+		self.present_widget = SnakeGamePlaying(
+			size = self.size,
+			pos = self.pos
+		)
+		self.present_widget.set_difficulty(difficulty)
+		self.present_widget.build_game()
+		self.add_widget(self.present_widget)
+		self.status = 1
+		self.last_difficulty = difficulty
+
+	def start_game1(self, button):
+		self.start_game(1)
+
+	def start_game2(self, button):
+		self.start_game(2)
+
+	def start_game3(self, button):
+		self.start_game(3)
+
+	def start_game4(self, button):
+		self.start_game(4)
+
+	def start_game5(self, button):
+		self.start_game(5)
+
+	def try_agian(self, button):
+		self.start_game(self.last_difficulty)
+
+	def reset(self, button):
+		self.remove_widget(self.present_widget)
+		self.build_game()
+
+	def gameover(self):
+		self.status = 2
+		self.remove_widget(self.present_widget)
+		self.present_widget = SnakeGameOver(
+			size = self.size,
+			pos = self.pos
+		)
+		self.present_widget.tryagian.bind(on_release = self.try_agian)
+		self.present_widget.goback.bind(on_release = self.reset)
+		self.add_widget(self.present_widget)
+
+	def update(self, dt):
+		if self.status == 0:
+			self.present_widget.set_size(self.top)
+			self.present_widget.set_pos(self.top)
+		elif self.status == 1:
+			self.present_widget.update(dt)
+			if self.present_widget.game_lose:
+				self.gameover()
+		elif self.status == 2:
+			self.present_widget.set_size(self.top)
+			self.present_widget.set_pos(self.top)
+
+
+class SnakeGameStart(Widget):
+
+	veryeasy = ObjectProperty(None)
+	easy = ObjectProperty(None)
+	medium = ObjectProperty(None)
+	hard = ObjectProperty(None)
+	veryhaed = ObjectProperty(None)
+
+	def set_size(self, rootop):
+		sizex = rootop
+		sizey = rootop / 5
+		self.veryeasy.size = [sizex, sizey]
+		self.easy.size = [sizex, sizey]
+		self.medium.size = [sizex, sizey]
+		self.hard.size = [sizex, sizey]
+		self.veryhard.size = [sizex, sizey]
+
+	def set_pos(self, rootop):
+		self.veryeasy.pos = [0, 0]
+		self.easy.pos = [0, rootop / 5]
+		self.medium.pos = [0, rootop / 5 * 2]
+		self.hard.pos = [0, rootop / 5 * 3]
+		self.veryhard.pos = [0, rootop / 5 * 4]
+
+
+class SnakeGameOver(Widget):
+
+	tryagian = ObjectProperty(None)
+	goback = ObjectProperty(None)
+
+	def set_size(self, rootop):
+		sizex = rootop
+		sizey = rootop / 2
+		self.tryagian.size = [sizex, sizey]
+		self.goback.size = [sizex, sizey]
+
+	def set_pos(self, rootop):
+		self.tryagian.pos = [0, 0]
+		self.tryagian.pos = [0, rootop / 2]
+	
+class SnakeGamePlaying(Widget):
 
 	move_time = 5
 	nrows = 20
@@ -30,12 +146,21 @@ class SnakeGame(Widget):
 	# 3: left
 	# 4: down
 	direction = 1
-	start_game = ObjectProperty(None)
-	game_started = False
 	game_lose = False
 	empty_position = Set()
-	lose_button = ObjectProperty(None)
 	foods = {}
+
+	def set_difficulty(self, difficulty):
+		if difficulty == 1:
+			self.move_time = 10
+		elif difficulty == 2:
+			self.move_time = 5
+		elif difficulty == 3:
+			self.move_time = 3
+		elif difficulty == 4:
+			self.move_time = 2
+		elif difficulty == 5:
+			self.move_time = 1
 
 	def build_game(self):
 		self.snakeposition = [
@@ -43,7 +168,6 @@ class SnakeGame(Widget):
 			[int(self.nrows / 2) - 2, int(self.ncols / 2) - 1],
 			[int(self.nrows / 2) - 3, int(self.ncols / 2) - 1],
 			[int(self.nrows / 2) - 4, int(self.ncols / 2) - 1],
-
 			[int(self.nrows / 2) - 5, int(self.ncols / 2) - 1]
 		]
 		self.time = 0
@@ -51,12 +175,6 @@ class SnakeGame(Widget):
 			self.remove_widget(square)
 		self.squares = []
 		self.direction = 1
-		self.start_game = Button(
-			text = "Start Game"
-		)
-		self.start_game.bind(on_release = self.start_game_action)
-		self.add_widget(self.start_game)
-		self.game_started = False
 		self.game_lose = False
 		self.empty_position = Set()
 		for i in range(0, self.nrows * self.ncols):
@@ -64,13 +182,6 @@ class SnakeGame(Widget):
 		for coordinate in self.snakeposition:
 			convertednum = coordinate[0] * self.ncols + coordinate[1]
 			self.empty_position.remove(convertednum)
-		for foodnum in self.foods:
-			self.remove_widget(self.foods[foodnum])
-		self.foods = {}
-
-	def start_game_action(self, button):
-		self.remove_widget(self.start_game)
-		self.game_started = True
 		for foodnum in self.foods:
 			self.remove_widget(self.foods[foodnum])
 		self.foods = {}
@@ -88,19 +199,6 @@ class SnakeGame(Widget):
 		food.set_size(side_length)
 		self.add_widget(food)
 		self.foods[foodnum] = food		
-
-	def game_over(self):
-		self.lose_button = Button(
-			text = "Game Over"
-		)
-		self.lose_button.pos = [self.top * 0.05, self.top * 0.05]
-		self.lose_button.size = [self.top * 0.45, self.top * 0.45]
-		self.lose_button.bind(on_release = self.reset_game_action)
-		self.add_widget(self.lose_button)
-
-	def reset_game_action(self, button):
-		self.remove_widget(self.lose_button)
-		self.build_game()
 
 	def print_board(self):
 		for square in self.squares:
@@ -152,16 +250,11 @@ class SnakeGame(Widget):
 			self.add_food()
 
 	def update(self, dt):
-		self.start_game.pos = [self.top * 0.05, self.top * 0.05]
-		self.start_game.size = [self.top * 0.45, self.top * 0.45]
 		self.print_board()
-		if self.game_started and not self.game_lose:
-			self.time += 1
-			if self.time >= self.move_time:
-				self.move_once()
-				if self.game_lose:
-					self.game_over()
-				self.time = 0
+		self.time += 1
+		if self.time >= self.move_time:
+			self.move_once()
+			self.time = 0
 
 	def on_touch_move(self, touch):
 		if touch.dx > touch.dy and touch.dx > -touch.dy and (self.direction == 2 or self.direction == 4):
