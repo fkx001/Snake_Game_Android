@@ -1,0 +1,96 @@
+<SnakeGameStart>:
+
+	veryeasy: diff1
+	easy: diff2
+	medium: diff3
+	hard: diff4
+	veryhard: diff5
+
+	Button:
+		id: diff1
+		text: "Very Easy"
+		font_size: (self.top - self.y) / 2
+		background_color: 1, 0, 0, 1
+		size: self.size
+		pos: self.pos
+	Button:
+		id: diff2
+		text: "Easy"
+		font_size: (self.top - self.y) / 2
+		background_color: 1, 1, 0, 1
+		size: self.size
+		pos: self.pos
+	Button:
+		id: diff3
+		text: "Medium"
+		font_size: (self.top - self.y) / 2
+		background_color: 0, 1, 0, 1
+		size: self.size
+		pos: self.pos
+	Button:
+		id: diff4
+		text: "Hard"
+		font_size: (self.top - self.y) / 2
+		background_color: 0, 0, 1, 1
+		size: self.size
+		pos: self.pos
+	Button:
+		id: diff5
+		text: "Very Hard"
+		font_size: (self.top - self.y) / 2
+		background_color: 1, 0, 1, 1
+		size: self.size
+		pos: self.pos
+
+<SnakeGameOver>:
+
+	tryagian: bt1
+	goback: bt2
+
+	Button:
+		id: bt1
+		text: "Try agian"
+		font_size: (self.top - self.y) / 2
+		background_color: 1, 0, 0, 1
+		size: self.size
+		pos: self.pos
+		
+	Button:
+		id: bt2
+		text: "Go Back"
+		font_size: (self.top - self.y) / 2
+		background_color: 0, 0, 1, 1
+		size: self.size
+		pos: self.pos
+
+<SnakeGamePlaying>:
+	
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 0.5
+		Rectangle:
+			pos: 0, 0
+			size: self.right, self.top
+		Color:
+			rgba: 0, 0, 0, 1
+		Rectangle:
+			pos: self.top * 0.05, self.top * 0.05
+			size: self.top * 0.9, self.top * 0.9
+
+<Square>:
+
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+<Food>:
+
+	canvas:
+		Color:
+			rgba: 1, 1, 1, 1
+		Ellipse:
+			pos: self.pos
+			size: self.size
