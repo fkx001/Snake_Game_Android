@@ -10,6 +10,7 @@ import random
 class SnakeApp(App):
 
 	def build(self):
+		self.icon = "./snake_icon.png"
 		game = SnakeGame()
 		game.build_game()
 		Clock.schedule_interval(game.update, 1.0 / 10.0)
